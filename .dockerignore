@@ -1,0 +1,7 @@
+provision/*
+k8s/*
+*.yaml
+*.yml
+.git
+.gitignore
+.idea/*

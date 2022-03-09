@@ -1,0 +1,21 @@
+{
+  "job_id": "453cb772-4fde-4a6b-bd2e-82806ff21004",
+  "migrates": [
+    {
+      "name": "migration_1210201541",
+      "sql": "CREATE TABLE `migrations` ( `job_id` VARCHAR(50) NOT NULL , `id_migration` INT(20) NOT NULL AUTO_INCREMENT, `name` VARCHAR(100) NOT NULL , `status` VARCHAR(20) NOT NULL , `statements` VARCHAR(1000) NOT NULL ,`start_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, `end_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id_migration`)) ENGINE = InnoDB;"
+    },
+    {
+      "name": "reward_tier_config_0810201111",
+      "sql": "CREATE TABLE `reward_tier_config` ( `campaign_id` VARCHAR(30) NOT NULL , `circle_sum` INT(11) NULL , `label_special_rate` INT(11) NULL , `label_golden_rate` INT(11) NULL , `label_non_value_rate` INT(11) NULL , `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, `update_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`campaign_id`)) ENGINE = InnoDB;"
+    },
+    {
+      "name": "reward_tier_logs_0810201114",
+      "sql": "CREATE TABLE `reward_tier_logs` ( `campaign_id` VARCHAR(30) NOT NULL , `user_id` VARCHAR(30) NULL , `lucky_score` FLOAT(6) NULL , `campaign_action` VARCHAR(255) NULL , `reward_label` VARCHAR(50) NULL ,`reward_index` INT(20) NULL DEFAULT NULL,`circle_id` VARCHAR(50) NULL DEFAULT NULL, `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE = InnoDB;"
+    },
+    {
+      "name": "campaign_action_score_config_0810201115",
+      "sql": "CREATE TABLE `campaign_action_score_config` ( `campaign_id` VARCHAR(30) NOT NULL , `campaign_action` VARCHAR(255) NULL , `lucky_score` FLOAT(11) NULL , `create_at` DATETIME(6) NOT NULL , `update_at` DATETIME(6) NOT NULL , PRIMARY KEY (`campaign_id`)) ENGINE = InnoDB;"
+    }
+  ]
+}
