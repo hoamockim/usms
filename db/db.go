@@ -75,7 +75,6 @@ func Update(tableName string, data interface{}, conditions map[string]interface{
 	for key, val := range conditions {
 		query = query.Where(fmt.Sprintf("%v = ?", key), val)
 	}
-
 	return query.Update(data).Error
 }
 

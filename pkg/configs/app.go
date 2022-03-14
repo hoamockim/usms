@@ -8,6 +8,7 @@ type appConfig struct {
 	Mongo   Mongo        `json:"mongo"`
 	Redis   Redis        `json:"redis"`
 	Jwt     JwtKeyConfig `json:"jwt"`
+	Cert    Cert         `json:"cert"`
 }
 
 type configValidate interface {

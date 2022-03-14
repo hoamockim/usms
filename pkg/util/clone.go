@@ -77,7 +77,6 @@ func copyAr(src reflect.Value, dst reflect.Value, isArr bool) reflect.Value {
 			} else {
 				dst = reflect.Append(dst, reflect.Indirect(reflect.ValueOf(nfVal)))
 			}
-
 		} else {
 			nfVal = atomic(fIdx)
 			if isArr {
