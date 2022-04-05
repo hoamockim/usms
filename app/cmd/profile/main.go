@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"os"
 	"usms/app/controller"
+	"usms/pkg/configs"
 )
 
 var r *gin.Engine
@@ -17,19 +18,18 @@ func main() {
 
 	appV1 := r.Group("/usms/v1")
 	{
-		commonService := appV1.Group("/")
+		commonService := appV1.Group("sys/")
 		{
-			commonService.GET("health-check", controller.UserProfile().HealthCheck)
+			commonService.GET("health-check", controller.HealthCheck)
 		}
 
-		gatewayService := appV1.Group("/user-info")
+		profile := appV1.Group("/profile")
 		{
-			gatewayService.GET("/:code", controller.UserProfile().GetProfileDetail)
-			gatewayService.POST("", controller.UserProfile().SaveUserInfo)
+			profile.GET("/:code", controller.GetProfileDetail)
 		}
 	}
 
-	if err := r.Run("localhost:8081"); err != nil {
+	if err := r.Run(configs.AppURL()); err != nil {
 		os.Exit(1)
 	}
 

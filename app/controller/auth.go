@@ -2,50 +2,35 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"usms/app/dto"
-	"usms/app/service"
-	"usms/pkg/errors"
 )
 
-type AuthController struct {
-	baseController
-	authService service.AuthService
-}
-
-var (
-	authController AuthController
-)
-
-func init() {
-	authController.authService = service.NewAuthService()
-}
-
-func GetAuthController() *AuthController {
-	return &authController
-}
-
-//CreateJwtToken create a jwt token for user's request
-func (ctrl *AuthController) CreateJwtToken(ctx *gin.Context) {
-	var requestBody dto.JwtTokenRequestBody
+//SignIn create a jwt token for user's request
+func SignIn(ctx *gin.Context) {
+	var requestBody dto.JwtTokenBody
 	if err := ctx.Bind(&requestBody); err != nil {
-		ctrl.handleErr(ctx, &errors.ErrorMeta{HttpCode: 400}, "create-jwt-token")
+		error(ctx, http.StatusBadRequest, AUTH, "parsing-like-request", err.Error())
 	}
-	if !requestBody.ValidateCreateJwtToken() {
-		ctrl.handleErr(ctx, &errors.ErrorMeta{HttpCode: 400}, "create-jwt-token")
+	if !requestBody.Validate() {
+		error(ctx, http.StatusBadRequest, AUTH, "validate", "request data is invalid")
 	}
-	resData, err := ctrl.authService.RequestToken(&requestBody)
+	resData, err := authService.SignIn(&requestBody)
 	if err != nil {
-		ctrl.handleErr(ctx, &errors.ErrorMeta{HttpCode: 400}, "create-jwt-token")
+		error(ctx, http.StatusInternalServerError, AUTH, "running generate token", err.Error())
 	}
-	ctrl.success(ctx, &resData)
+	success(ctx, &resData)
 }
 
-func (ctrl *AuthController) RefreshJwtToken(ctx *gin.Context) {
-	var requestBody dto.JwtTokenRequestBody
-	if err := ctx.Bind(&requestBody); err != nil {
-		ctrl.handleErr(ctx, &errors.ErrorMeta{HttpCode: 400}, "refresh-jwt-token")
-	}
-	if !requestBody.ValidateRefreshJwtToken() {
-		ctrl.handleErr(ctx, &errors.ErrorMeta{HttpCode: 400}, "refresh-jwt-token")
-	}
+func SignUp(ctx *gin.Context) {
+
+}
+
+func SignInByThirdParty(ctx *gin.Context) {
+
+}
+
+// RefreshJwtToken renew a jwt token
+func RefreshJwtToken(ctx *gin.Context) {
+
 }

@@ -20,7 +20,7 @@ func (h *KafkaHandlerTest) Close() {
 
 func TestConsumerExample(t *testing.T) {
 	config := ConsumerConfig{
-		Topic:           []string{"testTopic"},
+		Topic:           []string{"metax.account_status.event"},
 		SeedBrokers:     []string{"localhost:9092"},
 		ConsumerGroupID: "cg-id-1",
 	}
@@ -37,5 +37,8 @@ func TestConsumerExample(t *testing.T) {
 	isExit := make(chan bool, 1)
 	consumerGroup.Start(signals, isExit)
 	<-isExit
+}
+
+func TestProducer(t *testing.T) {
 
 }

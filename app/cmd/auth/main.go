@@ -5,26 +5,28 @@ import (
 	"os"
 	"usms/app"
 	"usms/app/controller"
+	"usms/pkg/configs"
 )
 
 var r *gin.Engine
 
 func main() {
-	appV1 := r.Group("/auth/v1")
+	appV1 := r.Group("/usms/v1")
 	{
 		commonService := appV1.Group("/")
 		{
-			commonService.GET("health-check", controller.GetAuthController().HealthCheck)
+			commonService.GET("health-check", controller.HealthCheck)
 		}
 
-		jwtTokenService := appV1.Group("/token/")
+		auth := appV1.Group("/auth/")
 		{
-			jwtTokenService.POST("request", controller.GetAuthController().CreateJwtToken)
-			jwtTokenService.POST("refresh", controller.GetAuthController().RefreshJwtToken)
+			auth.POST("sign-in", controller.SignIn)
+			auth.POST("sign-up", controller.SignUp)
+			auth.POST("refresh", controller.RefreshJwtToken)
 		}
 	}
 
-	if err := r.Run("localhost:8082"); err != nil {
+	if err := r.Run(configs.AppURL()); err != nil {
 		os.Exit(1)
 	}
 }

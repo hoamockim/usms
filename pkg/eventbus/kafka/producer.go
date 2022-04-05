@@ -18,22 +18,15 @@ const (
 // ProducerType type
 type ProducerType string
 
-// Kafka Producer type
+// Producer type
 const (
-	KafkaSyncProducerType  ProducerType = "sync"
-	KafkaAsyncProducerType ProducerType = "async"
+	SyncProducerType  ProducerType = "sync"
+	AsyncProducerType ProducerType = "async"
 )
 
 var (
 	NoTopicDefined = errors.New("no topic defined")
 )
-
-// KafkaMessage - message info
-type KafkaMessage struct {
-	Topic string
-	Key   []byte
-	Value []byte
-}
 
 // ProducerConfig config
 type ProducerConfig struct {
@@ -46,14 +39,14 @@ type ProducerConfig struct {
 	SslServerCert    string
 }
 
-// KafkaProducer --
-type KafkaProducer struct {
+// Producer --
+type Producer struct {
 	producer sarama.AsyncProducer
 	topicMap map[string]string
 }
 
-// NewKafkaProducer init Producer
-func NewKafkaProducer(cf ProducerConfig) (*KafkaProducer, error) {
+// NewProducer init Producer
+func NewProducer(cf ProducerConfig) (*Producer, error) {
 	config := sarama.NewConfig()
 	config.Producer.Flush.Messages = cf.NumFlushMessages
 	config.Producer.Flush.Frequency = 1 * time.Second
@@ -75,16 +68,16 @@ func NewKafkaProducer(cf ProducerConfig) (*KafkaProducer, error) {
 		return nil, err
 	}
 
-	kafkaProducer := &KafkaProducer{
+	prd := &Producer{
 		producer: asyncProducer,
 		topicMap: cf.TopicMap,
 	}
 
-	return kafkaProducer, nil
+	return prd, nil
 }
 
 // SendMessage send message to topic
-func (p *KafkaProducer) SendMessage(m *KafkaMessage) {
+func (p *Producer) SendMessage(m *Message) {
 	msg := &sarama.ProducerMessage{
 		Topic: m.Topic,
 		Key:   sarama.ByteEncoder(m.Key),
@@ -94,7 +87,7 @@ func (p *KafkaProducer) SendMessage(m *KafkaMessage) {
 	p.producer.Input() <- msg
 }
 
-func (p *KafkaProducer) SendAbstractMessage(msg interface{}) error {
+func (p *Producer) SendAbstractMessage(msg interface{}) error {
 	msgStructName := p.getTypeOfMessage(msg)
 	topic := p.topicMap[msgStructName]
 	if topic == "" {
@@ -117,7 +110,7 @@ func (p *KafkaProducer) SendAbstractMessage(msg interface{}) error {
 	return er
 }
 
-func (p *KafkaProducer) getTypeOfMessage(msg interface{}) string {
+func (p *Producer) getTypeOfMessage(msg interface{}) string {
 	if t := reflect.TypeOf(msg); t.Kind() == reflect.Ptr {
 		return t.Elem().Name()
 	} else {
@@ -126,7 +119,7 @@ func (p *KafkaProducer) getTypeOfMessage(msg interface{}) string {
 }
 
 // Close topic
-func (p *KafkaProducer) Close() {
+func (p *Producer) Close() {
 	var wg sync.WaitGroup
 	p.producer.AsyncClose()
 

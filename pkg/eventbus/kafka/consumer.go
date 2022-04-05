@@ -76,8 +76,8 @@ type ConsumerHandler interface {
 	Close()
 }
 
-// KafkaConsumer init consumer
-type KafkaConsumer struct {
+// Consumer init consumer
+type Consumer struct {
 	client        sarama.Client
 	consumerGroup sarama.ConsumerGroup
 	Topic         []string
@@ -85,8 +85,8 @@ type KafkaConsumer struct {
 	running       bool
 }
 
-// NewKafkaConsumer - init consumer
-func NewKafkaConsumer(cf ConsumerConfig) (*KafkaConsumer, error) {
+// NewConsumer - init consumer
+func NewConsumer(cf ConsumerConfig) (*Consumer, error) {
 	config := sarama.NewConfig()
 	//config.Version = sarama.V1_0_0_0
 	config.Version = sarama.V2_3_0_0
@@ -118,7 +118,7 @@ func NewKafkaConsumer(cf ConsumerConfig) (*KafkaConsumer, error) {
 		return nil, err
 	}
 
-	consumer := &KafkaConsumer{
+	consumer := &Consumer{
 		client:        kkClient,
 		consumerGroup: kkConsumerGroup,
 		Topic:         cf.Topic,
@@ -128,12 +128,12 @@ func NewKafkaConsumer(cf ConsumerConfig) (*KafkaConsumer, error) {
 }
 
 // SetHandler controller consumer logic handler
-func (c *KafkaConsumer) SetHandler(fn ConsumerHandler) {
+func (c *Consumer) SetHandler(fn ConsumerHandler) {
 	c.Handler = fn
 }
 
 // Start consumer
-func (c *KafkaConsumer) Start(signals chan os.Signal, isExit chan bool) {
+func (c *Consumer) Start(signals chan os.Signal, isExit chan bool) {
 	ctx := context.Background()
 	for {
 		select {
@@ -157,7 +157,7 @@ func (c *KafkaConsumer) Start(signals chan os.Signal, isExit chan bool) {
 }
 
 // Close consumer
-func (c *KafkaConsumer) Close() {
+func (c *Consumer) Close() {
 	c.running = false
 	_ = c.consumerGroup.Close()
 	c.Handler.Close()

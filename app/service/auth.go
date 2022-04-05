@@ -1,39 +1,102 @@
 package service
 
 import (
+	"crypto/rsa"
+	"errors"
+	"github.com/dgrijalva/jwt-go"
+	"io/ioutil"
+	"time"
 	"usms/app/dto"
+	"usms/pkg/configs"
+	"usms/pkg/util"
 )
 
 type AuthService interface {
-	RequestToken(reqBody *dto.JwtTokenRequestBody) (dto.JwtTokenResponseData, error)
-	RefreshToken(reqBody dto.JwtTokenRequestBody) (dto.JwtTokenResponseData, error)
-	DeleteToken(accessToken string) (bool, error)
+	SignIn(reqBody *dto.JwtTokenBody) (*dto.JwtTokenData, error)
+	RefreshToken(reqBody dto.JwtTokenBody) (dto.JwtTokenData, error)
+	Verify(data string, claims jwt.Claims) error
 }
 
-type defaultAuthService struct {
-	userService interface {
-		QueryUserService
+const (
+	RS256 = "RS256"
+)
+
+type jwtParse struct {
+	publicKey  *rsa.PublicKey
+	privateKey *rsa.PrivateKey
+	parser     *jwt.Parser
+}
+
+var jwp *jwtParse
+
+func initJwtParse() {
+	priBytes, pubBytes := readKeys(configs.GetJwtKey())
+	priKey, _ := jwt.ParseRSAPrivateKeyFromPEM(priBytes)
+	pubKey, _ := jwt.ParseRSAPublicKeyFromPEM(pubBytes)
+	jwp = &jwtParse{
+		privateKey: priKey,
+		publicKey:  pubKey,
+		parser: &jwt.Parser{
+			ValidMethods:         []string{RS256},
+			SkipClaimsValidation: false,
+		},
 	}
 }
 
-var defaultAuth AuthService
+func readKeys(priKeyPath, pubKeyPath string) (priBytes, pubBytes []byte) {
+	priBytes, _ = ioutil.ReadFile(priKeyPath)
+	pubBytes, _ = ioutil.ReadFile(pubKeyPath)
 
-func NewAuthService() AuthService {
-	return defaultAuth
-}
-
-func init() {
-	defaultAuth = &defaultAuthService{getQueryService()}
-}
-
-func (srv *defaultAuthService) RequestToken(reqBody *dto.JwtTokenRequestBody) (resData dto.JwtTokenResponseData, err error) {
+	if len(priBytes) == 0 || len(pubBytes) == 0 {
+		panic("jwt is invalid")
+	}
 	return
 }
 
-func (srv *defaultAuthService) RefreshToken(reqBody dto.JwtTokenRequestBody) (resData dto.JwtTokenResponseData, err error) {
+func (srv *serviceImpl) Verify(data string, claims jwt.Claims) error {
+	_, err := jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwp.publicKey, nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if authClaim, ok := claims.(*dto.AuthClaims); ok {
+		if time.Unix(authClaim.ExpiresAt, 0).Sub(time.Now().UTC()) > 30*time.Second {
+			return errors.New("token is expired")
+		}
+	}
+	return nil
+}
+
+func (srv *serviceImpl) SignIn(reqBody *dto.JwtTokenBody) (tokenData *dto.JwtTokenData, err error) {
+	var userInfo *dto.UserInfoRes
+	if userInfo, err = srv.VerifyByEmail(reqBody.Email, reqBody.PassWord); err == nil {
+		return
+	}
+	claims := dto.AuthClaims{
+		Email:    reqBody.Email,
+		UserCode: userInfo.Code,
+		StandardClaims: &jwt.StandardClaims{
+			ExpiresAt: util.ConvertTimestampToMilliSecond(time.Now().Add(24 * time.Hour).Unix()),
+			IssuedAt:  int64(util.MakeCurrentTimestampMilliSecond()),
+		},
+	}
+
+	tkn := jwt.NewWithClaims(jwt.GetSigningMethod(RS256), claims)
+	var token string
+	if token, err = tkn.SignedString(jwp.privateKey); err != nil {
+		return
+	}
+
+	//set value for response data
+	tokenData = &dto.JwtTokenData{
+		AccessToken: token,
+	}
 	return
 }
 
-func (srv *defaultAuthService) DeleteToken(accessToken string) (bool, error) {
-	return true, nil
+func (srv *serviceImpl) RefreshToken(reqBody dto.JwtTokenBody) (resData dto.JwtTokenData, err error) {
+	return
 }

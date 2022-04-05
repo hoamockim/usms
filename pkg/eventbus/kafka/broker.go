@@ -14,6 +14,7 @@ type Message struct {
 	Value []byte
 }
 
+// EventData - Event Data Info
 type EventData struct {
 	RequestId string      `json:"request_id"`
 	EventName string      `json:"event_name"`

@@ -1,9 +1,6 @@
 package dto
 
-import (
-	"regexp"
-	"strings"
-)
+import "github.com/dgrijalva/jwt-go"
 
 type SignInType int8
 
@@ -20,7 +17,7 @@ const (
 	phonePattern = "^[0-9]{10,11}$"
 )
 
-type JwtTokenRequestBody struct {
+type JwtTokenBody struct {
 	SignInType   SignInType `json:"sign_in_type"`
 	UserName     string     `json:"user_name"`
 	PassWord     string     `json:"pass_word"`
@@ -30,36 +27,17 @@ type JwtTokenRequestBody struct {
 	RefreshToken string     `json:"refresh_token"`
 }
 
-type JwtTokenResponseData struct {
+type AuthClaims struct {
+	*jwt.StandardClaims
+	UserCode string `json:"user_code"`
+	Email    string `json:"email"`
+}
+
+type JwtTokenData struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
 
-type CreateJwtTokenValidate interface {
-	ValidateCreateJwtToken() bool
-}
-
-type RefreshJwtTokenValidate interface {
-	ValidateRefreshJwtToken() bool
-}
-
-func (bodyReq *JwtTokenRequestBody) ValidateCreateJwtToken() bool {
-	switch bodyReq.SignInType {
-	case UserPass:
-		return strings.TrimSpace(bodyReq.UserName) == "" && strings.TrimSpace(bodyReq.PassWord) == ""
-	case Email:
-		m, err := regexp.MatchString(emailPattern, bodyReq.Email)
-		return m || err != nil
-	case PhoneNumber:
-		m, err := regexp.MatchString(phonePattern, bodyReq.Phone)
-		return m || err != nil
-	case Refresh:
-		return strings.TrimSpace(bodyReq.RefreshToken) == ""
-	default:
-		return false
-	}
-}
-
-func (bodyReq *JwtTokenRequestBody) ValidateRefreshJwtToken() bool {
+func (bodyReq *JwtTokenBody) Validate() bool {
 	return true
 }

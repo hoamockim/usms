@@ -1,10 +1,10 @@
 package configs
 
-type JwtKeyConfig struct {
-	PublicKeyPath  string `json:"public_key_path" env:"JWT_PUBLIC"`
-	PrivateKeyPath string `json:"private_key_path" env:"JWT_PRIVATE"`
+type JwtKey struct {
+	PubPath string `json:"pub_path" env:"JWT_PUBLIC"`
+	PriPath string `json:"pri_path" env:"JWT_PRIVATE"`
 }
 
-func GetJwtKeys() (privateKey string, publicKey string) {
-	return app.Jwt.PrivateKeyPath, app.Jwt.PublicKeyPath
+func GetJwtKey() (string, string) {
+	return app.Jwt.PriPath, app.Jwt.PubPath
 }

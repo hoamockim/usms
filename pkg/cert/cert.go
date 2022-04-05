@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/pem"
 	"fmt"
 	"math/big"
 	"time"
@@ -114,6 +115,53 @@ func createCA(config configs.Cert) (*Cert, error) {
 	}
 
 	return ck, nil
+}
+
+func (c *Cert) decryptKey(key []byte, pw string) error {
+	blk, _ := pem.Decode(key)
+	var der []byte = blk.Bytes
+	var err error
+
+	if x509.IsEncryptedPEMBlock(blk) {
+		pass := []byte(pw)
+		der, err = x509.DecryptPEMBlock(blk, pass)
+		if err != nil {
+			return fmt.Errorf("can't decrypt private key (pw=%s): %s", pw, err)
+		}
+	}
+
+	sk, err := x509.ParseECPrivateKey(der)
+	if err == nil {
+		c.Key = sk
+	}
+
+	return err
+}
+
+func (c *Cert) encryptKey(pw string) ([]byte, error) {
+	if c.Key == nil {
+		return c.Rawkey, nil
+	}
+	derkey, err := x509.MarshalECPrivateKey(c.Key)
+	if err != nil {
+		return nil, fmt.Errorf("can't marshal private key: %s", err)
+	}
+
+	var blk *pem.Block
+	if len(pw) > 0 {
+		pass := []byte(pw)
+		blk, err = x509.EncryptPEMBlock(rand.Reader, "EC PRIVATE KEY", derkey, pass, x509.PEMCipherAES256)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		blk = &pem.Block{
+			Type:  "EC PRIVATE KEY",
+			Bytes: derkey,
+		}
+	}
+
+	return pem.EncodeToMemory(blk), nil
 }
 
 func saveCA(cert *Cert) error {
