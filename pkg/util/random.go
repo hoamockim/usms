@@ -3,7 +3,6 @@ package util
 import (
 	"crypto/rand"
 	"fmt"
-	"io"
 	"math/big"
 	mathRand "math/rand"
 	"sync"
@@ -41,9 +40,6 @@ func (r *lockedSource) Seed(seed int64) {
 
 func Bytes(n int) []byte {
 	data := make([]byte, n)
-	if _, err := io.ReadFull(rand.Reader, data); err != nil {
-		panic(err)
-	}
 	return data
 }
 

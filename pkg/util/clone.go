@@ -1,24 +1,33 @@
 package util
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func Clone(obj interface{}) interface{} {
 	clone := cloneS(obj)
 	copyV(obj, clone)
+	if reflect.TypeOf(obj).Kind() == reflect.Struct {
+		return reflect.ValueOf(clone).Elem().Interface()
+	}
 	return clone
 }
 
 func cloneS(obj interface{}) interface{} {
 	var newObj reflect.Value
-	switch reflect.TypeOf(obj).Kind() {
+	tp := reflect.TypeOf(obj)
+	switch tp.Kind() {
 	case reflect.Struct:
-		newObj = reflect.New(reflect.TypeOf(obj))
+		newObj = reflect.New(tp)
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Ptr, reflect.Slice:
-		newObj = reflect.New(reflect.TypeOf(obj).Elem())
+		newObj = reflect.New(tp.Elem())
 	default:
 		newObj = reflect.ValueOf(obj)
 	}
-	return newObj.Interface()
+
+	itf := newObj.Interface()
+
+	return itf
 }
 
 func copyV(src interface{}, dst interface{}) {
