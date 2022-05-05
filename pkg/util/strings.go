@@ -1,23 +1,30 @@
 package util
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"regexp"
 	"strings"
 )
 
 const (
-	emailPattern = "^\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
-	phonePattern = "^0\\d{9,10}$)|(^84\\d{9,11}$"
+	pwdPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*]).{8,}$"
+	emlPattern = "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$"
 )
 
-func IsEmail(email string) (bool, string) {
-	matched, _ := regexp.MatchString(emailPattern, email)
-	return matched, ""
+func Sha256(text string) string {
+	encode := sha256.Sum256([]byte(text))
+	return fmt.Sprintf("%x", encode)
 }
 
-func IsPhone(phone string) (bool, string) {
-	matched, _ := regexp.MatchString(phonePattern, phone)
-	return matched, ""
+func IsEmail(email string) bool {
+	matched, _ := regexp.MatchString(emlPattern, email)
+	return matched
+}
+
+func IsPassword(password string) bool {
+	matched, _ := regexp.MatchString(pwdPattern, password)
+	return matched
 }
 
 func StripAccents(name string) string {
