@@ -77,6 +77,8 @@ func copyAr(src reflect.Value, dst reflect.Value, isArr bool) reflect.Value {
 		var nfVal interface{}
 		if fIdx.Kind() == reflect.Struct || fIdx.Kind() == reflect.Ptr ||
 			fIdx.Kind() == reflect.Interface || fIdx.Kind() == reflect.Chan {
+
+			//TODO: need to compare reflect.TypeOf(fIdx.Interface())
 			itfType := reflect.Indirect(reflect.ValueOf(fIdx.Interface())).Type()
 			nObj := reflect.New(itfType)
 			copyV(fIdx.Interface(), nObj.Interface())

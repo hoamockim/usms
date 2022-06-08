@@ -11,7 +11,7 @@ build:
 	$(GOBUILD) -v -ldflags="-extldflags=-static" -o "usms" cmd/profile/main.go
 
 test:
-	$(GOTEST) -v ./...
+	$(GOTEST) -v $(go list ./.. | grep -v vendor) -covermode=count -coverprofile=sample.cov
 
 run internal:
 	go run app/cmd/internal/*.go

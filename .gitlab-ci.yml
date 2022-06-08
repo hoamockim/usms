@@ -1,0 +1,43 @@
+stages:
+  - test
+  - build
+  - deploy
+
+# code convention
+lint-code:
+  state: test
+  script: make lint
+  except:
+    - tags
+# uni-test
+uni-test:
+  stage: test
+  script:
+    - make dep
+    - make test
+  except:
+    - tags
+
+docker-build:
+  stage: build
+  image:  asia.gcr.io/tipee/k8s-deployer:latest
+  only:
+    refs:
+      - master
+      - develop
+  script:
+    - echo "hello world"
+
+build:
+  stage: build
+  script:
+    - make dep
+    - make build
+
+deploy staging:
+  stage: deploy
+  when: manual
+  allow_failure: false
+  image: asia.gcr.io/tipee/k8s-deployer:latest
+  tags:
+    - tipee-usms-staging
