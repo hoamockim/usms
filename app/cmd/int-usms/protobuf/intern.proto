@@ -10,9 +10,9 @@ message ExtraUserInfoReq {
   }
 }
 
-message ExtraUserInfoRes{
+  message ExtraUserInfoRes{
 
-}
+  }
 
 service UpdateExtra {
   rpc Update(ExtraUserInfoReq) returns (ExtraUserInfoRes) {}
