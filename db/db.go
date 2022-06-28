@@ -1,7 +1,6 @@
 package db
 
 import (
-	"context"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -14,17 +13,8 @@ const (
 	MySQLDialect = "mysql"
 )
 
-type Config struct {
-	driver        string
-	connection    string
-	maxLifeTime   int32
-	maxConnection int16
-}
-
 //dbFacade Build gorm run with raw query -> auto generate raw query
 type dbFacade struct {
-	app   string
-	ctx   context.Context
 	orm   *gorm.DB
 	cache cache.Adapter
 }
@@ -40,20 +30,17 @@ func init() {
 	if orm, err = gorm.Open(MySQLDialect, configs.DBConnectionString()); err != nil {
 		panic(err)
 	}
+	if err = orm.DB().Ping(); err != nil {
+		panic(err)
+	}
+
 	orm.DB().SetMaxOpenConns(300)
 	orm.DB().SetMaxIdleConns(10)
 	fcd = new(dbFacade)
 	fcd.orm = orm
 }
 
-//addDbContext
-func addDbContext(key string, value interface{}) context.Context {
-	ctx := context.Background()
-	context.WithValue(ctx, key, value)
-	return ctx
-}
-
-//GetById
+//GetById get data by id
 func GetById(id int, tableName string, data interface{ models.ModelCache }) error {
 	/*	if data.IsCached() {
 		if err := fcd.cache.Get(fmt.Sprintf("%v:db:%v:%v", fcd.app, tableName, id), data); err != nil {
@@ -78,7 +65,7 @@ func Update(tableName string, data interface{}, conditions map[string]interface{
 	return query.Update(data).Error
 }
 
-//Filter
+//Filter make a query with where condition
 func Filter(tableName string, entities interface{}, conditions map[string]interface{}) error {
 	query := fcd.orm.New().Table(tableName)
 	for key, val := range conditions {

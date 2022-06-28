@@ -30,7 +30,7 @@ type UserInfoRepository interface {
 	SaveUserInfo(userInfo *models.UserInfo) error
 }
 
-func (repo *defaultRepository) GetUserInfo(usf *UserFilter) (userInfo models.UserInfo, err error) {
+func (repo *repository) GetUserInfo(usf *UserFilter) (userInfo models.UserInfo, err error) {
 	var filter []FilterField
 	var userInfos []*models.UserInfo
 
@@ -56,7 +56,7 @@ func (repo *defaultRepository) GetUserInfo(usf *UserFilter) (userInfo models.Use
 	return
 }
 
-func (repo *defaultRepository) SaveUserInfo(userInfo *models.UserInfo) error {
+func (repo *repository) SaveUserInfo(userInfo *models.UserInfo) error {
 	if !userInfo.Validate() {
 		return errors.New(models.DataInvalid)
 	}

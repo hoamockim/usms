@@ -24,13 +24,13 @@ func (srv *serviceImpl) Register(req dto.UserInfoReq) (userInfo *dto.UserInfoRes
 	}
 	//1: check account exist with the current information
 	//if existed: return error with message user is existed
-	var entity *models.UserInfo
-	entity = srv.UserRepo.GetUserInfo(&repositories.UserFilter{
+	var entity models.UserInfo
+	entity, _ = srv.UserRepo.GetUserInfo(&repositories.UserFilter{
 		InputType: repositories.EmailType,
 		UserCode:  req.Email,
 	})
 
-	entity = &models.UserInfo{
+	entity = models.UserInfo{
 		Code:           util.UUID8(),
 		PriEmail:       req.Email,
 		PriMobilePhone: req.PhoneNumber,
@@ -40,8 +40,8 @@ func (srv *serviceImpl) Register(req dto.UserInfoReq) (userInfo *dto.UserInfoRes
 	// 2: create new account if it's not existed
 	// create verify link and send via email
 	// tracking register
-	if err = srv.UserRepo.SaveUserInfo(entity); err != nil {
-		return nil, err
+	if err = srv.UserRepo.SaveUserInfo(&entity); err != nil {
+		return
 	}
 	userInfo = &dto.UserInfoRes{
 		Code:     entity.Code,
@@ -53,7 +53,7 @@ func (srv *serviceImpl) Register(req dto.UserInfoReq) (userInfo *dto.UserInfoRes
 // GetUserInfo get user's information
 func (srv *serviceImpl) GetUserInfo(userCode string) (*dto.UserInfoRes, error) {
 	var res *dto.UserInfoRes
-	entity := srv.UserRepo.GetUserInfo(&repositories.UserFilter{
+	entity, _ := srv.UserRepo.GetUserInfo(&repositories.UserFilter{
 		InputType: repositories.CodeType,
 		UserCode:  userCode,
 	})
@@ -67,7 +67,7 @@ func (srv *serviceImpl) GetUserInfo(userCode string) (*dto.UserInfoRes, error) {
 // VerifyByEmail verify an account by email
 func (srv *serviceImpl) VerifyByEmail(email, password string) (userInfo *dto.UserInfoRes, err error) {
 	var res *dto.UserInfoRes
-	entity := srv.UserRepo.GetUserInfo(&repositories.UserFilter{
+	entity, _ := srv.UserRepo.GetUserInfo(&repositories.UserFilter{
 		InputType: repositories.EmailType,
 		Email:     email,
 		PassWord:  password,
@@ -75,8 +75,8 @@ func (srv *serviceImpl) VerifyByEmail(email, password string) (userInfo *dto.Use
 	if err != nil {
 		return res, err
 	}
-	res = &dto.UserInfoRes{}
-	res.Code = entity.Code
-	res.FullName = entity.FullName
-	return res, nil
+	userInfo = &dto.UserInfoRes{}
+	userInfo.Code = entity.Code
+	userInfo.FullName = entity.FullName
+	return
 }

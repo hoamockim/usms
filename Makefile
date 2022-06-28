@@ -6,12 +6,11 @@ GOGET=$(GOCMD) get
 
 update:
 	go mod tidy
-all: build
+all:
+	make build && make run internal
 build:
-	$(GOBUILD) -v -ldflags="-extldflags=-static" -o "usms" cmd/profile/main.go
-
+	$(GOBUILD) -v -ldflags="-extldflags=-static" -o $(SERVICE_NAME) app/cmd/$(SERVICE_NAME)/*.go
 test:
-	$(GOTEST) -v $(go list ./.. | grep -v vendor) -covermode=count -coverprofile=sample.cov
-
-run internal:
-	go run app/cmd/internal/*.go
+	$(GOTEST) -v ./...  -covermode=count -coverprofile=sample.cov
+run:
+	./$(SERVICE_NAME)

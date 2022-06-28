@@ -5,7 +5,7 @@ import (
 	"usms/db/models"
 )
 
-type defaultRepository struct {
+type repository struct {
 }
 
 //FilterField is used for where clause
@@ -17,14 +17,14 @@ type FilterField struct {
 	condition string // =, !=, >=, <=, >, <
 }
 
-var defaultRepo defaultRepository
+var repo repository
 
-func New() *defaultRepository {
-	return &defaultRepo
+func New() *repository {
+	return &repo
 }
 
 //save
-func (repo *defaultRepository) save(data interface {
+func (repo *repository) save(data interface {
 	models.ModelCredential
 	models.ModelMetadata
 }) error {
@@ -32,7 +32,7 @@ func (repo *defaultRepository) save(data interface {
 }
 
 //getById
-func (repo *defaultRepository) getById(data interface {
+func (repo *repository) getById(data interface {
 	models.ModelMetadata
 	models.ModelCache
 }, id int) error {
@@ -40,7 +40,7 @@ func (repo *defaultRepository) getById(data interface {
 }
 
 //update
-func (repo *defaultRepository) update(data interface {
+func (repo *repository) update(data interface {
 	models.ModelCredential
 	models.ModelMetadata
 }, filter ...FilterField) error {
@@ -56,7 +56,7 @@ func (repo *defaultRepository) update(data interface {
 }
 
 //filter
-func (repo *defaultRepository) filter(data interface {
+func (repo *repository) filter(data interface {
 	models.ModelMetadata
 	models.ModelCache
 }, entities interface{}, filter ...FilterField) error {

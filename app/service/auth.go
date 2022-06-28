@@ -53,13 +53,11 @@ func readKeys(priKeyPath, pubKeyPath string) (priBytes, pubBytes []byte) {
 	return
 }
 
-func (srv *serviceImpl) Verify(data string, claims jwt.Claims) error {
-	_, err := jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
+func (srv *serviceImpl) Verify(data string, claims jwt.Claims) (err error) {
+	if _, err = jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwp.publicKey, nil
-	})
-
-	if err != nil {
-		return err
+	}); err != nil {
+		return
 	}
 
 	if authClaim, ok := claims.(*dto.AuthClaims); ok {
@@ -67,7 +65,7 @@ func (srv *serviceImpl) Verify(data string, claims jwt.Claims) error {
 			return errors.New("token is expired")
 		}
 	}
-	return nil
+	return
 }
 
 func (srv *serviceImpl) SignIn(reqBody *dto.JwtTokenBody) (tokenData *dto.JwtTokenData, err error) {
