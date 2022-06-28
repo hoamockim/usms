@@ -12,7 +12,7 @@ ENV MIGRATION_RESOURCES="./app/cmd/migration/resources/"
 WORKDIR ./src/usms/
 COPY . .
 
-RUN go mod tidy && \
+RUN go make update && \
     go build -o $SERVICE_NAME ./app/cmd/$SERVICE_TYPE/ && \
     echo $PWD
 
