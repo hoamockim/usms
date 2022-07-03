@@ -26,6 +26,7 @@ func main() {
 		profile := appV1.Group("/profile")
 		{
 			profile.GET("/:code", controller.GetProfileDetail)
+			profile.POST("sign-up", controller.SignUp)
 		}
 	}
 

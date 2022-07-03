@@ -4,7 +4,7 @@ import (
 	"usms/db/repositories"
 )
 
-type serviceImpl struct {
+type Instance struct {
 	UserRepo interface {
 		repositories.UserInfoRepository
 		repositories.UserAttributeRepository
@@ -16,11 +16,11 @@ var userService interface {
 	CommandUserService
 }
 
-var srv *serviceImpl
+var srv *Instance
 
 func init() {
 	initService(repositories.New())
-	initJwtParse()
+	//initJwtParse()
 }
 
 // initService
@@ -28,7 +28,7 @@ func initService(userInterface interface {
 	repositories.UserInfoRepository
 	repositories.UserAttributeRepository
 }) {
-	srv = &serviceImpl{UserRepo: userInterface}
+	srv = &Instance{UserRepo: userInterface}
 }
 
 // GetUserService get user service

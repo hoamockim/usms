@@ -3,6 +3,7 @@ package app
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"usms/app/service"
 )
 
 func InitLogger() {
@@ -33,4 +34,8 @@ func InitLogger() {
 	}
 	_logger, _ := zapCfg.Build()
 	zap.ReplaceGlobals(_logger)
+}
+
+func InitAuth() {
+	service.InitJwtParse()
 }

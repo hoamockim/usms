@@ -19,3 +19,7 @@ func GetProfileDetail(ctx *gin.Context) {
 	}
 	success(ctx, userInfoRes)
 }
+
+func SignUp(ctx *gin.Context) {
+
+}

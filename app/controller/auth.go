@@ -22,10 +22,6 @@ func SignIn(ctx *gin.Context) {
 	success(ctx, &resData)
 }
 
-func SignUp(ctx *gin.Context) {
-
-}
-
 func SignInByThirdParty(ctx *gin.Context) {
 
 }

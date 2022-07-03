@@ -21,7 +21,7 @@ func main() {
 		auth := appV1.Group("/auth/")
 		{
 			auth.POST("sign-in", controller.SignIn)
-			auth.POST("sign-up", controller.SignUp)
+
 			auth.POST("refresh", controller.RefreshJwtToken)
 		}
 	}
@@ -34,4 +34,5 @@ func main() {
 func init() {
 	r = gin.New()
 	app.InitLogger()
+	app.InitAuth()
 }

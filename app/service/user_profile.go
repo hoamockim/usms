@@ -14,10 +14,13 @@ type QueryUserService interface {
 
 type CommandUserService interface {
 	Register(req dto.UserInfoReq) (userInfo *dto.UserInfoRes, err error)
+	ActiveUser(req dto.UserInfoReq) (string, error)
+	Verify(req dto.UserInfoReq) (userInfo *dto.UserInfoRes, err error)
+	ChangePassword(req dto.UserInfoReq) (userInfo *dto.UserInfoRes, err error)
 }
 
 // Register create new user for system
-func (srv *serviceImpl) Register(req dto.UserInfoReq) (userInfo *dto.UserInfoRes, err error) {
+func (srv *Instance) Register(req dto.UserInfoReq) (userInfo *dto.UserInfoRes, err error) {
 	if isValid := req.ValidateBeforeCreating(); !isValid {
 		err = errors.New("email or password is not correct")
 		return
@@ -50,8 +53,12 @@ func (srv *serviceImpl) Register(req dto.UserInfoReq) (userInfo *dto.UserInfoRes
 	return
 }
 
+func (srv *Instance) ActiveUser(req dto.UserInfoReq) (string, error) {
+	return "", nil
+}
+
 // GetUserInfo get user's information
-func (srv *serviceImpl) GetUserInfo(userCode string) (*dto.UserInfoRes, error) {
+func (srv *Instance) GetUserInfo(userCode string) (*dto.UserInfoRes, error) {
 	var res *dto.UserInfoRes
 	entity, _ := srv.UserRepo.GetUserInfo(&repositories.UserFilter{
 		InputType: repositories.CodeType,
@@ -65,7 +72,7 @@ func (srv *serviceImpl) GetUserInfo(userCode string) (*dto.UserInfoRes, error) {
 }
 
 // VerifyByEmail verify an account by email
-func (srv *serviceImpl) VerifyByEmail(email, password string) (userInfo *dto.UserInfoRes, err error) {
+func (srv *Instance) VerifyByEmail(email, password string) (userInfo *dto.UserInfoRes, err error) {
 	var res *dto.UserInfoRes
 	entity, _ := srv.UserRepo.GetUserInfo(&repositories.UserFilter{
 		InputType: repositories.EmailType,
@@ -78,5 +85,9 @@ func (srv *serviceImpl) VerifyByEmail(email, password string) (userInfo *dto.Use
 	userInfo = &dto.UserInfoRes{}
 	userInfo.Code = entity.Code
 	userInfo.FullName = entity.FullName
+	return
+}
+
+func (srv *Instance) ChangePassword(req dto.UserInfoReq) (userInfo *dto.UserInfoRes, err error) {
 	return
 }

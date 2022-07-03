@@ -29,7 +29,10 @@ type jwtParse struct {
 
 var jwp *jwtParse
 
-func initJwtParse() {
+func InitJwtParse() {
+	if jwp != nil {
+		return
+	}
 	priBytes, pubBytes := readKeys(configs.GetJwtKey())
 	priKey, _ := jwt.ParseRSAPrivateKeyFromPEM(priBytes)
 	pubKey, _ := jwt.ParseRSAPublicKeyFromPEM(pubBytes)
@@ -53,7 +56,7 @@ func readKeys(priKeyPath, pubKeyPath string) (priBytes, pubBytes []byte) {
 	return
 }
 
-func (srv *serviceImpl) Verify(data string, claims jwt.Claims) (err error) {
+func (srv *Instance) Verify(data string, claims jwt.Claims) (err error) {
 	if _, err = jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwp.publicKey, nil
 	}); err != nil {
@@ -68,7 +71,7 @@ func (srv *serviceImpl) Verify(data string, claims jwt.Claims) (err error) {
 	return
 }
 
-func (srv *serviceImpl) SignIn(reqBody *dto.JwtTokenBody) (tokenData *dto.JwtTokenData, err error) {
+func (srv *Instance) SignIn(reqBody *dto.JwtTokenBody) (tokenData *dto.JwtTokenData, err error) {
 	var userInfo *dto.UserInfoRes
 	if userInfo, err = srv.VerifyByEmail(reqBody.Email, reqBody.PassWord); err == nil {
 		return
@@ -95,6 +98,6 @@ func (srv *serviceImpl) SignIn(reqBody *dto.JwtTokenBody) (tokenData *dto.JwtTok
 	return
 }
 
-func (srv *serviceImpl) RefreshToken(reqBody dto.JwtTokenBody) (resData dto.JwtTokenData, err error) {
+func (srv *Instance) RefreshToken(reqBody dto.JwtTokenBody) (resData dto.JwtTokenData, err error) {
 	return
 }
